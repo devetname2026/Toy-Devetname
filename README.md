@@ -1,1 +1,826 @@
-# Toy-Devetname
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuad & Sevinc — Toy Dəvətnaməsi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-chic: #FAF7F2;
+      --bg-card: #FFFFFF;
+      --camel-main: #C19A6B;
+      --camel-dark: #8B5E34;
+      --camel-light: #EAE0D5;
+      --text-dark: #3D2B1F;
+      --text-muted: #7A685B;
+      --shadow: 0 20px 45px rgba(139, 94, 52, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-chic);
+      color: var(--text-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* MUSIC CONTROL BUTTON (FLOATING) */
+    .music-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--camel-light);
+      box-shadow: 0 4px 15px rgba(139, 94, 52, 0.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .music-btn.playing {
+      animation: rotateMusic 4s linear infinite;
+      border-color: var(--camel-main);
+      background: var(--bg-chic);
+    }
+
+    @keyframes rotateMusic {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* SHOOTING STARS BACKGROUND EFFECT */
+    .stars-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--camel-dark);
+      opacity: 0.4;
+      border-radius: 50%;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-10vh) translateX(0);
+        opacity: 0;
+      }
+      30% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(110vh) translateX(-15vw);
+        opacity: 0;
+      }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 30px 16px;
+      background: var(--bg-chic);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ENVELOPE SCREEN */
+    #envelope-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg-chic);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease, visibility 0.5s;
+    }
+
+    .envelope-wrapper {
+      width: 340px;
+      height: 230px;
+      background: #F2E9E1;
+      border: 1px solid var(--camel-light);
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 25px 50px rgba(139, 94, 52, 0.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .ribbon {
+      position: absolute;
+      width: 45px;
+      height: 100%;
+      background: var(--camel-light);
+      border-left: 1px solid rgba(193, 154, 107, 0.3);
+      border-right: 1px solid rgba(193, 154, 107, 0.3);
+    }
+
+    .wax-seal {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #C19A6B, #8B5E34);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #FFF;
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      box-shadow: 0 8px 20px rgba(139, 94, 52, 0.4);
+      position: relative;
+      z-index: 2;
+      border: 2px solid #EAE0D5;
+      transition: transform 0.3s ease;
+    }
+
+    .envelope-wrapper:hover .wax-seal {
+      transform: scale(1.08);
+    }
+
+    .tap-hint {
+      margin-top: 30px;
+      font-size: 13px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--camel-dark);
+      opacity: 0.8;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
+    }
+
+    /* MAIN INVITATION CONTENT */
+    .content {
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 40px 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(234, 224, 213, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .content.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* TOP DATE STAMP */
+    .top-date-stamp {
+      align-self: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: var(--camel-dark);
+      padding: 6px 20px;
+      border: 1px solid var(--camel-light);
+      background: var(--bg-chic);
+      border-radius: 20px;
+    }
+
+    .section-block {
+      text-align: center;
+      padding-bottom: 24px;
+      border-bottom: 1px dashed var(--camel-light);
+    }
+
+    .section-block:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--camel-main);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .couples-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 400;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+    }
+
+    .couples-title span {
+      font-style: italic;
+      color: var(--camel-main);
+    }
+
+    .date-badge {
+      display: inline-block;
+      padding: 10px 22px;
+      background: var(--bg-chic);
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--camel-dark);
+      margin-bottom: 20px;
+    }
+
+    .opening-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* SCROLL DOWN HINT EFFECT */
+    .scroll-hint-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 18px;
+    }
+
+    .scroll-hint-text {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--camel-dark);
+      font-weight: 600;
+      animation: blinkText 2s infinite ease-in-out;
+    }
+
+    .scroll-arrow {
+      font-size: 14px;
+      color: var(--camel-main);
+      animation: bounceArrow 1.5s infinite ease-in-out;
+    }
+
+    @keyframes blinkText {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes bounceArrow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* COUNTDOWN */
+    .timer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .timer-box {
+      background: var(--bg-chic);
+      padding: 14px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--camel-light);
+    }
+
+    .timer-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--camel-dark);
+    }
+
+    .timer-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* LOCATION & MAPS */
+    .venue-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .venue-address {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-map {
+      flex: 1;
+      padding: 13px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.3s ease;
+    }
+
+    .btn-gmaps {
+      background: var(--camel-main);
+      color: #FFF;
+    }
+
+    .btn-waze {
+      background: var(--bg-chic);
+      color: var(--camel-dark);
+      border: 1px solid var(--camel-light);
+    }
+
+    /* GEYİM TƏRZİ (DRESS CODE) */
+    .dresscode-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .dress-card {
+      background: var(--bg-chic);
+      border: 1px solid var(--camel-light);
+      border-radius: 14px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dress-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--camel-dark);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .dress-card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .color-palette {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .color-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* RSVP & FORM IN PANELS */
+    .rsvp-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+      text-align: left;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--camel-dark);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .panel-box {
+      background: var(--bg-chic);
+      border: 1px solid var(--camel-light);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+
+    .form-control {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-dark);
+      outline: none;
+    }
+
+    textarea.form-control {
+      resize: none;
+      height: 70px;
+    }
+
+    /* ATTENDANCE OPTIONS */
+    .attendance-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .attendance-btn {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .attendance-btn input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .btn-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 14px 10px;
+      background: var(--bg-chic);
+      border: 1.5px solid var(--camel-light);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .attendance-btn input:checked + .btn-label {
+      border-color: var(--camel-dark);
+      background: var(--camel-light);
+      color: var(--camel-dark);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      background: var(--camel-dark);
+      color: #FFF;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 6px;
+      box-shadow: 0 4px 15px rgba(139, 94, 52, 0.2);
+    }
+
+    .btn-submit:hover {
+      background: var(--camel-main);
+    }
+
+    .rsvp-success-message {
+      margin-top: 16px;
+      font-size: 15px;
+      color: var(--camel-dark);
+      font-weight: 500;
+      display: none;
+      text-align: center;
+      line-height: 1.6;
+      padding: 20px;
+      background: var(--bg-chic);
+      border: 1px solid var(--camel-light);
+      border-radius: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUDIO ELEMENT (Eylem Aktaş - Tut Yüreğimdən) & FLOATING BUTTON -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="https://audio.com/sinem-coskun/audio/eylem-aktas-yu-reg-imden-tut-akustik" type="audio/mpeg">
+  </audio>
+  <button class="music-btn" id="music-btn" onclick="toggleMusic()" title="Musiqini idarə et">🎵</button>
+
+  <!-- SHOOTING STARS EFFECT CONTAINER -->
+  <div class="stars-container" id="stars-container"></div>
+
+  <!-- ENVELOPE SCREEN -->
+  <div id="envelope-screen" onclick="openEnvelope()">
+    <div class="envelope-wrapper">
+      <div class="ribbon"></div>
+      <div class="wax-seal">F&S</div>
+    </div>
+    <div class="tap-hint">Açmaq üçün toxunun</div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+    <div class="content" id="main-content">
+      
+      <!-- TOP DATE STAMP -->
+      <div class="top-date-stamp">16.11.2026</div>
+
+      <!-- HERO SECTION -->
+      <div class="section-block">
+        <div class="subtitle">TOY DƏVƏTNAMƏSİ</div>
+        <h1 class="couples-title">Fuad <span>&</span> Sevinc</h1>
+        <div class="date-badge">16 NOYABR 2026 • SAAT 18:00</div>
+        <p class="opening-text">
+          “Həyatımızın ən xoşbəxt gününün başlanğıcında yanımızda olmağınız və bu sevincə şərik çıxmağınız bizə sonsuz qürur verər.”
+        </p>
+
+        <!-- AŞAĞI SÜRÜŞDÜRÜN MƏTNİ VƏ OX İŞARƏSİ -->
+        <div class="scroll-hint-wrapper">
+          <span class="scroll-hint-text">Aşağı sürüşdürün</span>
+          <span class="scroll-arrow">▼</span>
+        </div>
+      </div>
+
+      <!-- TIMER SECTION -->
+      <div class="section-block">
+        <div class="subtitle">Toya qalan vaxt</div>
+        <div class="timer-grid">
+          <div class="timer-box"><div class="timer-value" id="days">00</div><div class="timer-label">Gün</div></div>
+          <div class="timer-box"><div class="timer-value" id="hours">00</div><div class="timer-label">Saat</div></div>
+          <div class="timer-box"><div class="timer-value" id="minutes">00</div><div class="timer-label">Dəqiqə</div></div>
+          <div class="timer-box"><div class="timer-value" id="seconds">00</div><div class="timer-label">Saniyə</div></div>
+        </div>
+      </div>
+
+      <!-- LOCATION SECTION -->
+      <div class="section-block">
+        <div class="subtitle">MƏKAN</div>
+        <div class="venue-title">Golden Ring Şadlıq Sarayı</div>
+        <div class="venue-address">Bakı şəhəri</div>
+        <div class="btn-group">
+          <a href="https://maps.google.com" target="_blank" class="btn-map btn-gmaps">🗺️ Google Maps</a>
+          <a href="https://waze.com" target="_blank" class="btn-map btn-waze">🚗 Waze</a>
+        </div>
+      </div>
+
+      <!-- GEYİM TƏRZİ (DRESS CODE) -->
+      <div class="section-block">
+        <div class="subtitle">GEYİM TƏRZİ</div>
+        <div class="dresscode-cards">
+          <div class="dress-card">
+            <span style="font-size: 28px;">👔</span>
+            <div class="dress-card-title">Kişilər</div>
+            <div class="dress-card-desc">Smoking və ya klassik tünd kostyum</div>
+            <div class="color-palette">
+              <div class="color-swatch" style="background: #1A1A1A;"></div>
+              <div class="color-swatch" style="background: #2C3E50;"></div>
+              <div class="color-swatch" style="background: #8B5E34;"></div>
+            </div>
+          </div>
+          <div class="dress-card">
+            <span style="font-size: 28px;">👗</span>
+            <div class="dress-card-title">Xanımlar</div>
+            <div class="dress-card-desc">Zərif ziyafət geyimi</div>
+            <div class="color-palette">
+              <div class="color-swatch" style="background: #EAE0D5;"></div>
+              <div class="color-swatch" style="background: #C19A6B;"></div>
+              <div class="color-swatch" style="background: #D4AF37;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RSVP & WISHES SECTION -->
+      <div class="section-block">
+        <div class="subtitle">RSVP — İŞTİRAKIN TƏSDİQİ</div>
+        <form class="rsvp-form" id="rsvp-form" onsubmit="submitRSVP(event)">
+          
+          <!-- LÖVHƏ 1: Ad və Soyad -->
+          <div class="form-group">
+            <label for="guest-name">Ad və Soyadınız</label>
+            <div class="panel-box">
+              <input type="text" id="guest-name" class="form-control" placeholder="Məs: Elvin Məmmədov" required>
+            </div>
+          </div>
+
+          <!-- LÖVHƏ 2: İştirak Statusu -->
+          <div class="form-group">
+            <label>İştirak Statusunuz</label>
+            <div class="attendance-options">
+              <label class="attendance-btn">
+                <input type="radio" name="attendance" value="yes" checked>
+                <span class="btn-label">
+                  <span>✨ Gələcəyəm</span>
+                </span>
+              </label>
+              <label class="attendance-btn">
+                <input type="radio" name="attendance" value="no">
+                <span class="btn-label">
+                  <span>🙏 Gələ bilməyəcəyəm</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- LÖVHƏ 3: Qonaq Sayı -->
+          <div class="form-group">
+            <label for="guest-count">İştirakçı sayı</label>
+            <div class="panel-box">
+              <select id="guest-count" class="form-control" required>
+                <option value="1">1 nəfər (Tək)</option>
+                <option value="2" selected>2 nəfər (Cütlük)</option>
+                <option value="3">3 nəfər</option>
+                <option value="4">4 nəfər</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- LÖVHƏ 4: Ürək Sözləri -->
+          <div class="form-group">
+            <label for="guest-wishes">Ürək sözləriniz / Təbrik</label>
+            <div class="panel-box">
+              <textarea id="guest-wishes" class="form-control" placeholder="Xoş arzularınızı qeyd edin..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit">✨ Cavabı Göndər</button>
+        </form>
+        
+        <div class="rsvp-success-message" id="rsvp-success"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Music Controls
+    const music = document.getElementById('bg-music');
+    const musicBtn = document.getElementById('music-btn');
+    let isPlaying = false;
+
+    function toggleMusic() {
+      if (isPlaying) {
+        music.pause();
+        musicBtn.classList.remove('playing');
+        musicBtn.innerText = '🔇';
+      } else {
+        music.play().then(() => {
+          musicBtn.classList.add('playing');
+          musicBtn.innerText = '🎵';
+        }).catch(() => {});
+      }
+      isPlaying = !isPlaying;
+    }
+
+    // Generate shooting stars dynamically
+    const starsContainer = document.getElementById('stars-container');
+    const starCount = 30;
+
+    for (let i = 0; i < starCount; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      star.style.left = `${Math.random() * 100}vw`;
+      star.style.top = `${Math.random() * -50}vh`;
+      star.style.animationDuration = `${4 + Math.random() * 6}s`;
+      star.style.animationDelay = `${Math.random() * 5}s`;
+      starsContainer.appendChild(star);
+    }
+
+    function openEnvelope() {
+      const env = document.getElementById('envelope-screen');
+      const content = document.getElementById('main-content');
+      
+      // Zərfə kliklənən kimi dərhal musiqini işə salırıq
+      if (!isPlaying) {
+        toggleMusic();
+      }
+
+      // Zərfi gizlədib dərhal dəvətnaməni göstəririk
+      env.style.opacity = '0';
+      env.style.visibility = 'hidden';
+      content.classList.add('visible');
+    }
+
+    // Countdown Timer (16 November 2026, 18:00:00)
+    const weddingDate = new Date('November 16, 2026 18:00:00').getTime();
+
+    function updateTimer() {
+      const now = new Date().getTime();
+      const diff = weddingDate - now;
+
+      if (diff > 0) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('days').innerText = String(days).padStart(2, '0');
+        document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+      } else {
+        document.getElementById('days').innerText = "00";
+        document.getElementById('hours').innerText = "00";
+        document.getElementById('minutes').innerText = "00";
+        document.getElementById('seconds').innerText = "00";
+      }
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // Form Submit Action
+    function submitRSVP(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('guest-name').value;
+      const count = document.getElementById('guest-count').value;
+      const attending = document.querySelector('input[name="attendance"]:checked').value;
+      
+      const form = document.getElementById('rsvp-form');
+      const successMsg = document.getElementById('rsvp-success');
+
+      form.style.display = 'none';
+      successMsg.style.display = 'block';
+
+      if (attending === 'yes') {
+        successMsg.innerHTML = `Təşəkkür edirik, <b>${name}</b>!<br>Cavabınız qeydə alındı. Sizi və ${count} nəfərlik heyətinizi aramızda görməyə səbirsizlənirik! ✨`;
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.7 },
+          colors: ['#C19A6B', '#8B5E34', '#EAE0D5']
+        });
+      } else {
+        successMsg.innerHTML = `Məlumat üçün təşəkkür edirik, <b>${name}</b>.<br>Gələ bilməsəniz də, diqqətiniz və xoş arzularınız bizim üçün çox dəyərlidir! 🙏`;
+      }
+    }
+  </script>
+</body>
+</html>
